@@ -65,10 +65,14 @@ app.post('/api/identify', async (req, res) => {
     }
 
     const model = 'gemini-flash-latest';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': apiKey
+      },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
         contents: [{ role: 'user', parts }],
