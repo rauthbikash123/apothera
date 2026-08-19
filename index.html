@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apothéra — Know what you're taking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #101d18;
+    --bg-2: #16261f;
+    --surface: #1b2c25;
+    --surface-2: #223629;
+    --border: rgba(237,232,220,0.12);
+    --border-strong: rgba(237,232,220,0.24);
+    --bone: #ede8dc;
+    --bone-dim: #a9b0a3;
+    --bone-faint: #6f776c;
+    --brass: #c08a3e;
+    --brass-light: #e0b46b;
+    --sage: #4e7a5e;
+    --sage-light: #7ea788;
+    --clay: #b0533c;
+    --clay-light: #d98c72;
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--bone);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before{
+    content:"";
+    position: fixed; inset:0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(237,232,220,0.035) 1px, transparent 0);
+    background-size: 22px 22px;
+    pointer-events:none;
+    z-index:0;
+  }
+  a{color: var(--brass-light);}
+  .wrap{max-width: 1040px; margin: 0 auto; padding: 0 28px;}
+  ::selection{background: var(--brass); color: #101d18;}
+
+  /* ---------- nav ---------- */
+  nav{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(16,29,24,0.86);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; padding-top:18px; padding-bottom:18px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family: var(--font-display); font-size:20px; letter-spacing:0.02em;}
+  .brand .mark{
+    width:26px; height:26px; border-radius:50%;
+    border:1.5px solid var(--brass);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:var(--brass-light);
+  }
+  nav .links{display:flex; gap:32px; font-size:14px; color:var(--bone-dim);}
+  nav .links a{text-decoration:none; color:var(--bone-dim); transition: color 0.2s;}
+  nav .links a:hover{color:var(--bone);}
+
+  /* ---------- hero ---------- */
+  header.hero{
+    position:relative; z-index:1;
+    padding: 96px 0 72px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sage-light);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 22px;
+  }
+  .eyebrow::before{content:""; width:22px; height:1px; background: var(--sage-light);}
+  h1{
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(38px, 5.4vw, 66px);
+    line-height: 1.06;
+    margin: 0 0 22px;
+    max-width: 780px;
+    letter-spacing: -0.01em;
+  }
+  h1 em{font-style: italic; font-weight:300; color: var(--brass-light);}
+  .hero-sub{
+    font-size: 17px;
+    color: var(--bone-dim);
+    max-width: 520px;
+    margin: 0 0 40px;
+  }
+  .hero-actions{display:flex; gap:14px; flex-wrap:wrap;}
+  .btn{
+    font-family: var(--font-body);
+    font-size: 14px; font-weight:500;
+    padding: 13px 26px;
+    border-radius: 2px;
+    cursor:pointer;
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--bone);
+    transition: all 0.2s;
+    text-decoration:none;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:hover{border-color: var(--brass); color: var(--brass-light);}
+  .btn.primary{
+    background: var(--brass);
+    border-color: var(--brass);
+    color: #14201c;
+  }
+  .btn.primary:hover{ background: var(--brass-light); border-color: var(--brass-light); color:#14201c;}
+
+  /* ---------- disclaimer strip ---------- */
+  .strip{
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .strip .wrap{
+    padding: 14px 28px;
+    display:flex; align-items:flex-start; gap:12px;
+    font-size: 13px; color: var(--bone-dim);
+  }
+  .strip .dot{ min-width:6px; height:6px; border-radius:50%; background: var(--clay-light); margin-top:6px;}
+
+  /* ---------- main tool section ---------- */
+  section.tool{ position:relative; z-index:1; padding: 80px 0;}
+  .section-head{ margin-bottom: 44px; max-width: 620px;}
+  .section-label{
+    font-family: var(--font-mono); font-size:12px; letter-spacing:0.12em;
+    color: var(--brass-light); text-transform:uppercase; margin-bottom:12px;
+  }
+  h2{ font-family: var(--font-display); font-weight:500; font-size: 32px; margin: 0 0 12px;}
+  .section-head p{ color: var(--bone-dim); font-size:15px; margin:0;}
+
+  .panel{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 36px;
+  }
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 28px;}
+  @media (max-width: 760px){ .grid-2{grid-template-columns: 1fr;} }
+
+  .field-label{
+    display:block; font-size:13px; font-weight:500; color: var(--bone);
+    margin-bottom: 10px;
+  }
+  .field-hint{ font-size:12px; color: var(--bone-faint); margin-top:6px;}
+
+  .dropzone{
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 3px;
+    padding: 28px 20px;
+    text-align:center;
+    cursor:pointer;
+    transition: all 0.2s;
+    background: var(--surface-2);
+    min-height: 160px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  }
+  .dropzone:hover, .dropzone.drag{ border-color: var(--brass); background: rgba(192,138,62,0.06);}
+  .dropzone .icon{ font-size: 22px; color: var(--brass-light);}
+  .dropzone .label{ font-size:13px; color: var(--bone-dim);}
+  .dropzone img{ max-height:110px; max-width:100%; border-radius:2px; }
+  input[type=file]{ display:none; }
+
+  textarea, select{
+    width:100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    color: var(--bone);
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 13px 14px;
+    border-radius: 2px;
+    resize: vertical;
+    min-height: 120px;
+  }
+  textarea:focus, select:focus{ outline:none; border-color: var(--brass);}
+  textarea::placeholder{ color: var(--bone-faint); }
+
+  .submit-row{ display:flex; align-items:center; gap:16px; margin-top:26px;}
+  .status-text{ font-size:13px; color: var(--bone-faint); font-family: var(--font-mono);}
+
+  /* ---------- result card: apothecary label ---------- */
+  .result{
+    margin-top: 40px;
+    background: var(--bg-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    overflow:hidden;
+    display:none;
+  }
+  .result.show{ display:block; }
+  .result-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 22px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(192,138,62,0.06), transparent);
+  }
+  .result-head .name{ font-family: var(--font-display); font-size:24px; font-weight:500;}
+  .seal{
+    width: 46px; height:46px; border-radius:50%;
+    border: 1.5px solid var(--brass);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-mono); font-size:10px; color: var(--brass-light);
+    letter-spacing:0.05em; text-align:center; line-height:1.2;
+  }
+  .result-body{ padding: 28px 32px 32px;}
+  .result-block{ margin-bottom: 24px; }
+  .result-block:last-child{ margin-bottom:0; }
+  .result-block h4{
+    font-family: var(--font-mono); font-size:11px; letter-spacing:0.12em; text-transform:uppercase;
+    color: var(--sage-light); margin: 0 0 10px;
+  }
+  .result-block p, .result-block li{ font-size:14.5px; color: var(--bone); margin:0 0 6px; }
+  .result-block ul{ margin:0; padding-left:18px;}
+  .caution-box{
+    border: 1px solid rgba(176,83,60,0.4);
+    background: rgba(176,83,60,0.08);
+    border-radius: 2px;
+    padding: 16px 18px;
+    display:flex; gap:12px;
+  }
+  .caution-box .icon{ color: var(--clay-light); font-size:16px; margin-top:1px;}
+  .caution-box p{ margin:0; font-size:13.5px; color: var(--bone-dim);}
+
+  /* ---------- how it works ---------- */
+  section.how{ position:relative; z-index:1; padding: 40px 0 90px; border-top:1px solid var(--border);}
+  .steps{ display:grid; grid-template-columns: repeat(3,1fr); gap: 28px; margin-top:36px;}
+  @media (max-width:760px){ .steps{grid-template-columns:1fr;} }
+  .step{ padding-top: 18px; border-top: 1px solid var(--border-strong);}
+  .step .num{ font-family: var(--font-mono); font-size:12px; color: var(--brass-light); margin-bottom:14px; display:block;}
+  .step h3{ font-family: var(--font-display); font-weight:500; font-size:19px; margin:0 0 8px;}
+  .step p{ font-size:14px; color: var(--bone-dim); margin:0;}
+
+  footer{
+    border-top: 1px solid var(--border);
+    padding: 32px 0;
+    position:relative; z-index:1;
+  }
+  footer .wrap{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;}
+  footer p{ font-size:12.5px; color: var(--bone-faint); margin:0;}
+
+  .spinner{
+    width:14px; height:14px; border-radius:50%;
+    border: 2px solid rgba(237,232,220,0.25);
+    border-top-color: var(--brass);
+    animation: spin 0.7s linear infinite;
+    display:inline-block;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg);} }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand"><span class="mark">A</span> Apothéra</div>
+    <div class="links">
+      <a href="#tool">Identify</a>
+      <a href="#how">How it works</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Plain-language medicine information</div>
+    <h1>Know what's in your hand<br><em>before it goes in your body.</em></h1>
+    <p class="hero-sub">Photograph a pill, strip, or box — or describe how you're feeling — and get clear, sourced information in return. Not a diagnosis. Not a prescription. Just clarity.</p>
+    <div class="hero-actions">
+      <a href="#tool" class="btn primary">Identify a medicine ↓</a>
+      <a href="#how" class="btn">How this works</a>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="wrap">
+    <span class="dot"></span>
+    <span>This tool gives general, educational information only. It cannot diagnose, prescribe, or replace a pharmacist or doctor. If this is urgent, contact a medical professional or emergency services.</span>
+  </div>
+</div>
+
+<section class="tool" id="tool">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-label">The cabinet</div>
+      <h2>Bring what you have</h2>
+      <p>A photo of the packaging or pill, and a short note on symptoms if you have any. The more legible the image, the better the read.</p>
+    </div>
+
+    <div class="panel">
+      <div class="grid-2">
+        <div>
+          <label class="field-label">Photo of the medicine</label>
+          <div class="dropzone" id="dropzone">
+            <div id="dropzoneContent">
+              <div class="icon"><i class="icon-camera">&#9679;</i></div>
+              <div class="label">Click to upload, or drag an image here</div>
+            </div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*">
+          <p class="field-hint">Packaging, label, or the pill itself — whatever's clearest.</p>
+        </div>
+        <div>
+          <label class="field-label">What's going on (optional)</label>
+          <textarea id="symptomInput" placeholder="e.g. mild headache since this morning, took this two hours ago, no other medication today..."></textarea>
+          <p class="field-hint">General information only — for anything severe or urgent, contact a professional directly.</p>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn primary" id="submitBtn">Read this medicine</button>
+        <span class="status-text" id="statusText"></span>
+      </div>
+
+      <div class="result" id="result">
+        <div class="result-head">
+          <div class="name" id="resultName">—</div>
+          <div class="seal">FOR<br>REFERENCE</div>
+        </div>
+        <div class="result-body" id="resultBody"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="section-label">The process</div>
+      <h2>Three honest steps</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="num">01</span>
+        <h3>You show it something</h3>
+        <p>A photo of a box, blister strip, or pill — or a plain description of how you feel.</p>
+      </div>
+      <div class="step">
+        <span class="num">02</span>
+        <h3>It reads carefully</h3>
+        <p>It identifies what it can, and says plainly when it isn't sure rather than guessing.</p>
+      </div>
+      <div class="step">
+        <span class="num">03</span>
+        <h3>You stay in charge</h3>
+        <p>General information comes back — the decision, and any real medical question, stays with you and your pharmacist or doctor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Apothéra — informational only, not a substitute for professional medical advice.</p>
+    <p>&copy; 2026</p>
+  </div>
+</footer>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const dropzoneContent = document.getElementById('dropzoneContent');
+const fileInput = document.getElementById('fileInput');
+const submitBtn = document.getElementById('submitBtn');
+const statusText = document.getElementById('statusText');
+const resultEl = document.getElementById('result');
+const resultName = document.getElementById('resultName');
+const resultBody = document.getElementById('resultBody');
+const symptomInput = document.getElementById('symptomInput');
+
+let imageBase64 = null;
+let imageMediaType = null;
+
+dropzone.addEventListener('click', () => fileInput.click());
+dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('drag'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag'));
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropzone.classList.remove('drag');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  imageMediaType = file.type;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imageBase64 = e.target.result.split(',')[1];
+    dropzoneContent.innerHTML = '<img src="' + e.target.result + '" alt="uploaded medicine" />';
+  };
+  reader.readAsDataURL(file);
+}
+
+submitBtn.addEventListener('click', async () => {
+  const symptoms = symptomInput.value.trim();
+  if (!imageBase64 && !symptoms) {
+    statusText.textContent = 'Add a photo or a short description first.';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  statusText.innerHTML = '<span class="spinner"></span> reading...';
+  resultEl.classList.remove('show');
+
+  const systemPrompt = `You are a careful, plain-language medicine information assistant embedded in a website called Apothéra.
+Rules you must always follow:
+- You are NOT a doctor and this is NOT a diagnosis or a prescription. Never state or imply certainty about what a person has or should take.
+- If an image is provided, try to identify the medicine from visible packaging, markings, or pill shape/color. If you cannot be reasonably confident, say so plainly instead of guessing.
+- Never give specific dosing instructions, dosage adjustments, or tell the person how much to take. You may state the commonly listed adult dosage range as printed on standard packaging purely as reference information, clearly labeled "as typically listed on packaging - confirm with a pharmacist", but never tell the person what THEY should take.
+- If symptoms are described, give general educational information about what such symptoms are commonly associated with, but explicitly avoid diagnosing. Always recommend seeing a pharmacist or doctor for anything beyond mild/common.
+- If anything described sounds urgent or severe (e.g. difficulty breathing, chest pain, suspected overdose, allergic reaction, severe bleeding), your FIRST line must clearly say to seek emergency care immediately.
+- Always include a short "common interactions or cautions" note when relevant (e.g. don't combine with alcohol, other painkillers, etc.) at a general, well-known level only.
+- Keep tone calm, clear, warm, and non-alarmist unless the situation is urgent.
+
+Respond ONLY with a JSON object, no preamble, no markdown fences, matching exactly this shape:
+{
+  "medicine_name": "string - your best identification, or 'Not confidently identified' if unclear",
+  "urgent_warning": "string or null - only set if the situation sounds urgent, otherwise null",
+  "what_it_is": "1-3 sentences, plain language, what this medicine is generally used for",
+  "general_info": ["array of 2-4 short bullet strings with general educational info relevant to what was shared"],
+  "cautions": "1-3 sentences on common cautions/interactions, general level only",
+  "next_step": "1-2 sentences on the sensible next step (e.g. confirm with pharmacist, see a doctor if symptoms persist beyond X)"
+}`;
+
+  const userContent = [];
+  if (imageBase64) {
+    userContent.push({
+      type: "image",
+      source: { type: "base64", media_type: imageMediaType, data: imageBase64 }
+    });
+  }
+  userContent.push({
+    type: "text",
+    text: symptoms ? `Symptoms / context: ${symptoms}` : "Please identify this medicine from the image."
+  });
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userContent }]
+      })
+    });
+    const data = await response.json();
+    const raw = data.content.map(b => b.text || "").join("").trim();
+    const clean = raw.replace(/^```json/, '').replace(/```$/, '').trim();
+    const parsed = JSON.parse(clean);
+    renderResult(parsed);
+  } catch (err) {
+    statusText.textContent = "Couldn't read that — try again with a clearer photo or description.";
+    submitBtn.disabled = false;
+    return;
+  }
+
+  statusText.textContent = '';
+  submitBtn.disabled = false;
+});
+
+function renderResult(r) {
+  resultName.textContent = r.medicine_name || 'Not confidently identified';
+
+  let html = '';
+  if (r.urgent_warning) {
+    html += `<div class="result-block"><div class="caution-box" style="border-color: rgba(176,83,60,0.7); background: rgba(176,83,60,0.16);">
+      <span class="icon">&#9888;</span><p><strong style="color:var(--clay-light)">${escapeHtml(r.urgent_warning)}</strong></p>
+    </div></div>`;
+  }
+  html += `<div class="result-block"><h4>What it is</h4><p>${escapeHtml(r.what_it_is || '—')}</p></div>`;
+  if (r.general_info && r.general_info.length) {
+    html += `<div class="result-block"><h4>General information</h4><ul>${r.general_info.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`;
+  }
+  if (r.cautions) {
+    html += `<div class="result-block"><h4>Cautions</h4><div class="caution-box"><span class="icon">&#9888;</span><p>${escapeHtml(r.cautions)}</p></div></div>`;
+  }
+  if (r.next_step) {
+    html += `<div class="result-block"><h4>Sensible next step</h4><p>${escapeHtml(r.next_step)}</p></div>`;
+  }
+  resultBody.innerHTML = html;
+  resultEl.classList.add('show');
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
